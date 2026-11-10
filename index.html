@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عالم ألعاب الأبطال</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+*{font-family:'Baloo Bhaijaan 2',cursive,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+body{background:linear-gradient(180deg,#bbf2f6 0%,#d8f5ff 40%,#fff7d6 100%);min-height:100vh;overflow-x:hidden;position:relative}
+.cloud{position:absolute;background:rgba(255,255,255,.85);border-radius:999px;animation:floatCloud linear infinite;z-index:0;pointer-events:none}
+@keyframes floatCloud{from{transform:translateX(110vw)}to{transform:translateX(-30vw)}}
+@keyframes gentleWiggle{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(3deg) scale(1.05)}}
+.animate-wiggle{animation:gentleWiggle 3s ease-in-out infinite}
+.kid-btn{box-shadow:0 6px 0 rgba(0,0,0,.15),0 12px 18px rgba(0,0,0,.1);transition:all .15s cubic-bezier(.4,0,.2,1)}
+.kid-btn:hover{transform:translateY(-3px)}
+.kid-btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+.pop-sticker{transition:transform .2s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
+.pop-sticker:hover{transform:scale(1.25) rotate(8deg)}
+.pop-sticker:active{transform:scale(.85) rotate(-8deg)}
+/* modal */
+#gameModal{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:50;display:none;align-items:center;justify-content:center;padding:12px}
+#gameModal.open{display:flex}
+#gameBox{background:#fff;border-radius:28px;width:100%;max-width:820px;max-height:95vh;overflow:auto;border:5px solid #fbbf24;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+/* memory */
+.mem-card{aspect-ratio:1;border-radius:16px;font-size:2.4rem;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#0ea5e9;border:3px solid #0369a1;transition:transform .25s;color:#fff}
+.mem-card.flipped{background:#fff;transform:rotateY(180deg)}
+.mem-card.matched{background:#bbf7d0;border-color:#16a34a;cursor:default}
+/* shadow match */
+.sh-item{font-size:2.8rem;padding:6px 10px;border-radius:14px;cursor:pointer;background:#fff7ed;border:3px solid #fdba74;transition:transform .15s}
+.sh-item.sel{transform:scale(1.2);border-color:#f59e0b;background:#fef3c7}
+.sh-slot{font-size:2.8rem;padding:6px 10px;border-radius:14px;cursor:pointer;background:#e2e8f0;border:3px dashed #94a3b8;filter:none}
+.sh-slot span{filter:brightness(0) opacity(.7)}
+.sh-slot.done{background:#bbf7d0;border:3px solid #16a34a}
+.sh-slot.done span{filter:none}
+/* maze */
+.mz-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border-radius:6px}
+.mz-wall{background:#4f46e5}
+.mz-path{background:#fef3c7}
+/* coloring */
+.col-swatch{width:42px;height:42px;border-radius:50%;border:4px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer}
+.col-swatch.sel{outline:4px solid #0f172a}
+svg .fillable{cursor:pointer;stroke:#0f172a;stroke-width:3;stroke-linejoin:round}
+.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between">
+
+<div class="cloud w-52 h-20 top-12 left-10" style="animation-duration:45s"></div>
+<div class="cloud w-72 h-24 top-48 right-5" style="animation-duration:65s;animation-delay:-20s"></div>
+<div class="cloud w-40 h-16 top-96 left-1/3" style="animation-duration:50s;animation-delay:-10s"></div>
+
+<div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+
+<header class="flex items-center justify-between gap-4 bg-white/80 backdrop-blur-md rounded-3xl p-4 sm:p-5 shadow-lg border-4 border-amber-300 mb-8">
+  <div class="flex items-center gap-3">
+    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-amber-400 to-yellow-300 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shadow-md animate-wiggle">🦁</div>
+    <div>
+      <h1 class="text-xl sm:text-3xl font-black text-amber-600 leading-none">عالم ألعاب الأبطال 🎮✨</h1>
+      <p class="text-xs sm:text-sm font-bold text-slate-500 mt-1">أفضل الألعاب المسلية للأذكياء الصغار (5 - 7 سنوات)</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-2 sm:gap-3">
+    <div id="starBox" class="flex items-center gap-2 bg-amber-100 border-2 border-amber-400 px-3 sm:px-4 py-2 rounded-2xl shadow-inner font-extrabold text-amber-800 text-sm sm:text-lg transition-transform">
+      <span class="text-2xl">⭐</span><span id="starCounter">0</span><span class="hidden sm:inline text-xs text-amber-700">نجمة</span>
+    </div>
+    <button id="soundToggle" class="kid-btn bg-emerald-400 text-white font-extrabold rounded-2xl flex items-center justify-center text-2xl w-12 h-12 border-2 border-emerald-500"><span id="soundIcon">🔊</span></button>
+  </div>
+</header>
+
+<div class="bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 rounded-3xl p-6 sm:p-8 text-white text-center shadow-xl mb-10 border-4 border-white/60 relative overflow-hidden">
+  <div class="absolute -right-8 -bottom-8 text-8xl opacity-20 pointer-events-none">🚀</div>
+  <div class="absolute -left-6 -top-6 text-7xl opacity-20 pointer-events-none">🎈</div>
+  <h2 class="text-2xl sm:text-4xl font-extrabold mb-2 drop-shadow-md">مرحباً يا بطل! اختر لعبتك المفضلة الآن 🌟</h2>
+  <p class="text-sm sm:text-lg font-medium opacity-95 max-w-xl mx-auto">اضغط على أي لعبة لتبدأ المغامرة فوراً، واجمع النجوم!</p>
+</div>
+
+<main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12" id="gamesGrid"></main>
+
+<section class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-4 border-amber-400 shadow-xl text-center mb-8">
+  <h3 class="text-2xl sm:text-3xl font-black text-amber-600 mb-2">🎁 ركن الجوائز والملصقات السحرية 🎉</h3>
+  <p class="text-slate-600 font-bold mb-6 text-sm sm:text-base">المس أو انقر على أي ملصق لتحصل على نجوم واحتفال رائع!</p>
+  <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-4xl sm:text-6xl py-3">
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-md">⭐</button>
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-rose-50 rounded-2xl border-2 border-rose-200 shadow-md">🎈</button>
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-orange-50 rounded-2xl border-2 border-orange-200 shadow-md">🦁</button>
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-sky-50 rounded-2xl border-2 border-sky-200 shadow-md">🚀</button>
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-pink-50 rounded-2xl border-2 border-pink-200 shadow-md">🍭</button>
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-purple-50 rounded-2xl border-2 border-purple-200 shadow-md">🎨</button>
+    <button onclick="popSticker(this)" class="pop-sticker p-3 bg-yellow-50 rounded-2xl border-2 border-yellow-200 shadow-md">🏆</button>
+  </div>
+</section>
+</div>
+
+<footer class="text-center py-6 text-slate-500 font-bold text-xs sm:text-sm bg-white/50 backdrop-blur border-t border-slate-200"><p>مصمم بكل حب ❤️ لأبطالنا الصغار المبدعين</p></footer>
+
+<!-- Game Modal -->
+<div id="gameModal">
+  <div id="gameBox">
+    <div class="flex items-center justify-between p-4 border-b-4 border-amber-200 bg-amber-50 sticky top-0 z-10">
+      <h3 id="gameTitle" class="text-xl sm:text-2xl font-black text-amber-700"></h3>
+      <div class="flex gap-2">
+        <button onclick="restartGame()" class="kid-btn bg-sky-500 text-white font-black px-3 py-2 rounded-xl border-2 border-sky-600">🔄 من جديد</button>
+        <button onclick="closeGame()" class="kid-btn bg-rose-500 text-white font-black px-3 py-2 rounded-xl border-2 border-rose-600">✖ خروج</button>
+      </div>
+    </div>
+    <div id="gameArea" class="p-4 sm:p-6"></div>
+  </div>
+</div>
+
+<script>
+/* ===== shared ===== */
+let soundEnabled=true, starCount=0, audioCtx=null, currentGame=null, gameCleanup=null;
+function ctx(){ if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();} if(audioCtx.state==='suspended')audioCtx.resume(); return audioCtx;}
+function tone(freq,dur=0.15,type='sine',vol=0.25){ if(!soundEnabled)return; try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);g.gain.setValueAtTime(vol,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur);}catch(e){} }
+function pop(){ tone(450+Math.random()*200,0.2); }
+function good(){ tone(660,0.12,'triangle'); setTimeout(()=>tone(880,0.15,'triangle'),100); }
+function bad(){ tone(180,0.25,'sawtooth',0.15); }
+function cheer(){ [523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>tone(f,0.25,'triangle',0.2),i*90)); }
+function addStars(n=1){ starCount+=n; document.getElementById('starCounter').textContent=starCount; const b=document.getElementById('starBox'); b.classList.add('scale-110'); setTimeout(()=>b.classList.remove('scale-110'),200); }
+function burst(o={y:0.6}){ confetti({particleCount:60,spread:70,origin:o}); }
+function win(stars=10,msg='أحسنت يا بطل! 🏆'){ cheer(); addStars(stars); burst({y:0.5}); const a=document.getElementById('gameArea'); const d=document.createElement('div'); d.className='text-center mt-4 bg-green-100 border-4 border-green-400 rounded-2xl p-4 text-2xl font-black text-green-700'; d.innerHTML=msg+'<br><span class="text-base">حصلت على '+stars+' ⭐</span>'; a.appendChild(d); }
+function popSticker(el){ pop(); addStars(1); const r=el.getBoundingClientRect(); confetti({particleCount:20,spread:45,origin:{x:(r.left+r.width/2)/innerWidth,y:(r.top+r.height/2)/innerHeight},colors:['#f59e0b','#ec4899','#3b82f6','#10b981']}); }
+document.getElementById('soundToggle').addEventListener('click',()=>{soundEnabled=!soundEnabled;document.getElementById('soundIcon').textContent=soundEnabled?'🔊':'🔇';if(soundEnabled)tone(600,0.2);});
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const arNum=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+
+/* ===== game cards ===== */
+const GAMES=[
+ {id:'memory',icon:'🧠',color:'sky',title:'لعبة تطابق الذاكرة',desc:'اقلب البطاقات الملونة وابحث عن الصور المتطابقة واختبر قوة ذاكرتك!'},
+ {id:'letters',icon:'🔤',color:'rose',title:'صائد الحروف',desc:'حرك السلة وامسك الحرف المطلوب قبل ما يقع على الأرض!'},
+ {id:'shadow',icon:'🧩',color:'amber',title:'مطابقة الظلال',desc:'اضغط على الحيوان ثم اضغط على ظله الصحيح.'},
+ {id:'maze',icon:'🌀',color:'emerald',title:'متاهة الألوان',desc:'وجّه القطة داخل المسار الأصفر حتى تصل إلى بيتها!'},
+ {id:'numbers',icon:'🏎️',color:'indigo',title:'سباق الأرقام',desc:'عدّ الأشياء واضغط الرقم الصحيح لتتقدم سيارتك للفوز!'},
+ {id:'coloring',icon:'🎨',color:'purple',title:'تلوين الحيوانات',desc:'اختر لونك المفضل والمس أي جزء من الرسمة لتلوينه.'},
+];
+document.getElementById('gamesGrid').innerHTML=GAMES.map(g=>`
+<div class="bg-white rounded-3xl p-6 border-4 border-${g.color}-300 shadow-xl flex flex-col justify-between hover:scale-[1.02] transition-transform">
+ <div>
+  <div class="flex justify-between items-start mb-4">
+   <div class="w-16 h-16 rounded-2xl bg-${g.color}-100 border-2 border-${g.color}-300 flex items-center justify-center text-4xl shadow-inner">${g.icon}</div>
+   <span class="bg-${g.color}-100 text-${g.color}-700 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full border border-${g.color}-300">٥ - ٧ سنوات</span>
+  </div>
+  <h3 class="text-xl sm:text-2xl font-black text-slate-800 mb-2">${g.title}</h3>
+  <p class="text-slate-600 text-sm leading-relaxed mb-6 font-medium">${g.desc}</p>
+ </div>
+ <button onclick="openGame('${g.id}')" class="kid-btn w-full bg-${g.color}-500 hover:bg-${g.color}-600 text-white font-black text-lg py-3 rounded-2xl border-2 border-${g.color}-600">العب الآن 🚀</button>
+</div>`).join('');
+
+function openGame(id){ currentGame=id; const g=GAMES.find(x=>x.id===id); document.getElementById('gameTitle').textContent=g.icon+' '+g.title; document.getElementById('gameModal').classList.add('open'); tone(700,0.15); restartGame(); }
+function restartGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameArea').innerHTML=''; ({memory:memoryGame,letters:letterGame,shadow:shadowGame,maze:mazeGame,numbers:numberGame,coloring:coloringGame})[currentGame](); }
+function closeGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameModal').classList.remove('open'); document.getElementById('gameArea').innerHTML=''; }
+
+/* ===== 1. Memory ===== */
+function memoryGame(){
+ const a=document.getElementById('gameArea');
+ const em=shuffle(['🐶','🐱','🐸','🦋','🍎','🌈']); const cards=shuffle([...em,...em]);
+ let first=null,lock=false,matched=0,moves=0;
+ a.innerHTML=`<p class="text-center font-bold text-slate-600 mb-3">اقلب بطاقتين وابحث عن الصور المتشابهة 👀 &nbsp; المحاولات: <span id="memMoves">0</span></p><div id="memGrid" class="grid grid-cols-4 gap-3 max-w-md mx-auto"></div>`;
+ const grid=a.querySelector('#memGrid');
+ cards.forEach((e,i)=>{const c=document.createElement('div');c.className='mem-card';c.textContent='❓';c.dataset.e=e;
+  c.onclick=()=>{ if(lock||c.classList.contains('flipped'))return; pop(); c.classList.add('flipped'); c.textContent=e;
+   if(!first){first=c;return;} moves++; a.querySelector('#memMoves').textContent=moves;
+   if(first.dataset.e===e){ first.classList.add('matched'); c.classList.add('matched'); first=null; matched++; good(); if(matched===em.length) setTimeout(()=>win(10),300); }
+   else{ lock=true; const f=first; first=null; setTimeout(()=>{f.classList.remove('flipped');c.classList.remove('flipped');f.textContent='❓';c.textContent='❓';lock=false;},800); }
+  }; grid.appendChild(c);});
+}
+
+/* ===== 2. Letter catcher (canvas) ===== */
+function letterGame(){
+ const a=document.getElementById('gameArea');
+ a.innerHTML=`<div class="text-center font-black text-lg mb-2">امسك الحرف: <span id="lcTarget" class="text-rose-600 text-3xl"></span> &nbsp; النقاط: <span id="lcScore">0</span>/5 &nbsp; ❤️ <span id="lcLives">3</span></div>
+ <canvas id="lcCanvas" width="600" height="300" class="mx-auto block rounded-2xl border-4 border-rose-300" style="background:linear-gradient(#e0f2fe,#fde68a);touch-action:none;width:min(100%,84vh);aspect-ratio:2/1"></canvas>
+ <div class="flex justify-center gap-4 mt-3"><button id="lcL" class="kid-btn bg-rose-500 text-white font-black text-2xl px-8 py-2 rounded-2xl border-2 border-rose-600">⬅</button><button id="lcR" class="kid-btn bg-rose-500 text-white font-black text-2xl px-8 py-2 rounded-2xl border-2 border-rose-600">➡</button></div>`;
+ const cv=a.querySelector('#lcCanvas'),c=cv.getContext('2d');
+ const letters=['أ','ب','ت','ج','د','ر','س','ع','ف','م','ن','و'];
+ let target,bx=270,drops=[],score=0,lives=3,running=true,dir=0,raf,spawn;
+ const newTarget=()=>{target=letters[Math.floor(Math.random()*letters.length)];a.querySelector('#lcTarget').textContent=target;};
+ newTarget();
+ const mk=()=>{ const t=Math.random()<0.45?target:letters[Math.floor(Math.random()*letters.length)]; drops.push({x:40+Math.random()*520,y:-30,l:t,v:1.2+Math.random()*1}); };
+ spawn=setInterval(mk,1200);
+ const move=x=>{bx=Math.max(0,Math.min(520,x-40));};
+ cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();move((e.clientX-r.left)*600/r.width);});
+ cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect();move((e.clientX-r.left)*600/r.width);});
+ const L=a.querySelector('#lcL'),R=a.querySelector('#lcR');
+ const hold=(b,d)=>{b.onpointerdown=()=>dir=d;b.onpointerup=b.onpointerleave=()=>dir=0;};
+ hold(L,-1);hold(R,1);
+ const key=e=>{if(e.key==='ArrowLeft')dir=-1;if(e.key==='ArrowRight')dir=1;}; const keyU=()=>dir=0;
+ window.addEventListener('keydown',key);window.addEventListener('keyup',keyU);
+ function loop(){ if(!running)return; bx=Math.max(0,Math.min(520,bx+dir*6));
+  c.clearRect(0,0,600,300);
+  c.font='900 64px "Baloo Bhaijaan 2", Arial, sans-serif'; c.textAlign='center'; c.textBaseline='middle';
+  drops.forEach(d=>{d.y+=d.v; c.fillStyle=d.l===target?'#be123c':'#1e3a8a'; c.fillText(d.l,d.x,d.y);});
+  /* basket: drawn shape so it is always visible */
+  c.fillStyle='#b45309'; c.beginPath(); c.moveTo(bx,250); c.lineTo(bx+80,250); c.lineTo(bx+68,295); c.lineTo(bx+12,295); c.closePath(); c.fill();
+  c.strokeStyle='#78350f'; c.lineWidth=4; c.stroke();
+  c.strokeStyle='#fbbf24'; c.lineWidth=3; for(let i=1;i<4;i++){c.beginPath();c.moveTo(bx+8,250+i*11);c.lineTo(bx+72,250+i*11);c.stroke();}
+  drops=drops.filter(d=>{ if(d.y>235&&d.y<300&&Math.abs(d.x-(bx+40))<45){ if(d.l===target){score++;good();a.querySelector('#lcScore').textContent=score;newTarget();}else{lives--;bad();a.querySelector('#lcLives').textContent=lives;} return false;} if(d.y>320){ if(d.l===target){lives--;bad();a.querySelector('#lcLives').textContent=lives;} return false;} return true;});
+  if(score>=5){running=false;stop();win(10);return;}
+  if(lives<=0){running=false;stop();const d=document.createElement('div');d.className='text-center mt-3 text-xl font-black text-rose-600';d.textContent='حاول مرة أخرى يا بطل! اضغط "من جديد" 🔄';a.appendChild(d);return;}
+  raf=requestAnimationFrame(loop);
+ }
+ function stop(){cancelAnimationFrame(raf);clearInterval(spawn);window.removeEventListener('keydown',key);window.removeEventListener('keyup',keyU);}
+ gameCleanup=()=>{running=false;stop();};
+ loop();
+}
+
+/* ===== 3. Shadow match ===== */
+function shadowGame(){
+ const a=document.getElementById('gameArea');
+ const SETS=[
+  {name:'🐾 حيوانات',pool:['🐘','🦒','🐢','🦁','🐱','🐶','🐰','🐸','🦊','🐼','🐨','🐮','🐷','🐵','🦓','🐧']},
+  {name:'🍉 فواكه وخضار',pool:['🍌','🍓','🍎','🍇','🍉','🍍','🥕','🌽','🍒','🥦','🍋','🍐','🥑','🍑']},
+  {name:'🚗 مواصلات',pool:['🚗','🚌','🚲','✈️','🚀','🚁','🚂','⛵','🏍️','🚜','🛵','🚒']},
+  {name:'⚽ أشياء وألعاب',pool:['⚽','🏀','🎸','🧸','🎈','🪁','🎺','🥁','🎲','🧩','🏆','🎁']},
+  {name:'🏠 حاجات حوالينا',pool:['🏠','🌳','🌸','☀️','🌙','⭐','☂️','👒','👟','🎒','📚','🧁']},
+ ];
+ let level=0;
+ function round(){
+  const set=SETS[level%SETS.length]; const count=Math.min(4+Math.floor(level/2),8);
+  const items=shuffle([...set.pool]).slice(0,count); let sel=null,done=0;
+  a.innerHTML=`<div class="flex justify-between items-center mb-3 bg-amber-50 rounded-xl px-3 py-2 border-2 border-amber-200"><span class="font-black text-amber-700">المرحلة ${arNum(level+1)}</span><span class="font-bold text-slate-600">${set.name}</span></div>
+  <p class="text-center font-bold text-slate-600 mb-3">اضغط على الشكل ثم اضغط على ظلّه الصحيح 👇</p>
+  <div id="shItems" class="flex flex-wrap justify-center gap-3 mb-5"></div>
+  <div class="text-center text-3xl mb-2">⬇️</div>
+  <div id="shSlots" class="flex flex-wrap justify-center gap-3"></div>`;
+  const I=a.querySelector('#shItems'),S=a.querySelector('#shSlots');
+  items.forEach(e=>{const d=document.createElement('div');d.className='sh-item';d.textContent=e;d.dataset.e=e;d.onclick=()=>{if(d.classList.contains('hidden'))return;pop();I.querySelectorAll('.sh-item').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');sel=d;};I.appendChild(d);});
+  shuffle([...items]).forEach(e=>{const s=document.createElement('div');s.className='sh-slot';s.innerHTML='<span>'+e+'</span>';s.dataset.e=e;
+   s.onclick=()=>{ if(!sel||s.classList.contains('done'))return; if(sel.dataset.e===e){s.classList.add('done');sel.classList.add('hidden');sel=null;good();done++;
+     if(done===items.length){ setTimeout(()=>{ win(5+level*2,'أحسنت! خلّصت المرحلة '+arNum(level+1)+' 🏆'); const b=document.createElement('button'); b.className='kid-btn block mx-auto mt-3 bg-amber-500 text-white font-black text-lg px-6 py-3 rounded-2xl border-2 border-amber-600'; b.textContent='المرحلة التالية ➡'; b.onclick=()=>{level++;cheer();round();}; a.appendChild(b); },300); }
+   }else{bad();s.classList.add('shake');setTimeout(()=>s.classList.remove('shake'),300);} };
+   S.appendChild(s);});
+ }
+ round();
+}
+
+/* ===== 4. Maze ===== */
+function mazeGame(){
+ const a=document.getElementById('gameArea');
+ const maps=[
+ ["#########","#S..#...#","#.#.#.#.#","#.#...#.#","#.#####.#","#.......#","###.###.#","#...#..H#","#########"],
+ ["#########","#S.#....#","##.#.##.#","#..#..#.#","#.##.##.#","#....#..#","#.####.##","#......H#","#########"],
+ ["#########","#S......#","#.#####.#","#.#...#.#","#.#.#.#.#","#...#.#.#","#####.#.#","#H....#.#","#########"]];
+ const m=maps[Math.floor(Math.random()*maps.length)].map(r=>r.split(''));
+ let p={r:0,c:0},h={r:0,c:0};
+ m.forEach((row,r)=>row.forEach((ch,c)=>{if(ch==='S')p={r,c};if(ch==='H')h={r,c};}));
+ a.innerHTML=`<p class="text-center font-bold text-slate-600 mb-3">وصّل القطة 🐱 إلى بيتها 🏠 — استخدم الأسهم</p><div id="mzGrid" class="grid gap-1 max-w-sm mx-auto" style="grid-template-columns:repeat(9,1fr)"></div>
+ <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto mt-4">
+  <div></div><button data-d="u" class="mzb kid-btn bg-emerald-500 text-white text-2xl py-2 rounded-xl border-2 border-emerald-600">⬆</button><div></div>
+  <button data-d="l" class="mzb kid-btn bg-emerald-500 text-white text-2xl py-2 rounded-xl border-2 border-emerald-600">⬅</button>
+  <button data-d="d" class="mzb kid-btn bg-emerald-500 text-white text-2xl py-2 rounded-xl border-2 border-emerald-600">⬇</button>
+  <button data-d="r" class="mzb kid-btn bg-emerald-500 text-white text-2xl py-2 rounded-xl border-2 border-emerald-600">➡</button></div>`;
+ const g=a.querySelector('#mzGrid');let won=false;
+ function draw(){ g.innerHTML=''; m.forEach((row,r)=>row.forEach((ch,c)=>{const d=document.createElement('div');d.className='mz-cell '+(ch==='#'?'mz-wall':'mz-path');if(r===p.r&&c===p.c)d.textContent='🐱';else if(ch==='H')d.textContent='🏠';g.appendChild(d);})); }
+ function mv(d){ if(won)return; const nr=p.r+(d==='u'?-1:d==='d'?1:0),nc=p.c+(d==='l'?-1:d==='r'?1:0); if(m[nr][nc]==='#'){bad();return;} p={r:nr,c:nc};tone(500,0.08);draw(); if(nr===h.r&&nc===h.c){won=true;win(10,'القطة وصلت بيتها! 🐱🏠');} }
+ a.querySelectorAll('.mzb').forEach(b=>b.onclick=()=>mv(b.dataset.d));
+ const key=e=>{const k={ArrowUp:'u',ArrowDown:'d',ArrowLeft:'l',ArrowRight:'r'}[e.key];if(k){e.preventDefault();mv(k);}};
+ window.addEventListener('keydown',key); gameCleanup=()=>window.removeEventListener('keydown',key);
+ draw();
+}
+
+/* ===== 5. Number race ===== */
+function numberGame(){
+ const a=document.getElementById('gameArea');
+ const pool=['🍎','⭐','🐟','🎈','🍪','🐥'];
+ let pos=0,round=0,n;
+ a.innerHTML=`<div class="relative h-16 bg-slate-200 rounded-full border-4 border-indigo-300 mb-5 overflow-hidden"><div class="absolute right-2 top-1/2 -translate-y-1/2 text-3xl">🏁</div><div id="nrCar" class="absolute top-1/2 -translate-y-1/2 text-4xl transition-all duration-500" style="left:2%">🏎️</div></div>
+ <p class="text-center font-bold text-slate-600 mb-2">كم عدد الأشياء؟ 🤔</p>
+ <div id="nrItems" class="text-5xl text-center min-h-[110px] flex flex-wrap justify-center gap-2 items-center bg-indigo-50 rounded-2xl p-3 mb-4"></div>
+ <div id="nrOpts" class="flex justify-center gap-4"></div>`;
+ function next(){ n=1+Math.floor(Math.random()*9); const e=pool[Math.floor(Math.random()*pool.length)]; a.querySelector('#nrItems').textContent=e.repeat(n);
+  const opts=new Set([n]); while(opts.size<3)opts.add(Math.max(1,Math.min(9,n+Math.floor(Math.random()*5)-2)));
+  a.querySelector('#nrOpts').innerHTML=shuffle([...opts]).map(o=>`<button data-v="${o}" class="nrb kid-btn bg-indigo-500 text-white text-3xl font-black w-20 h-20 rounded-2xl border-2 border-indigo-600">${arNum(o)}</button>`).join('');
+  a.querySelectorAll('.nrb').forEach(b=>b.onclick=()=>{ if(+b.dataset.v===n){good();round++;pos=round*20;a.querySelector('#nrCar').style.left=Math.min(pos,88)+'%';if(round>=5){a.querySelector('#nrOpts').innerHTML='';setTimeout(()=>win(10,'سيارتك فازت بالمركز الأول! 🏎️🏆'),500);}else setTimeout(next,500);}else{bad();b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),300);} });
+ }
+ next();
+}
+
+/* ===== 6. Coloring ===== */
+function coloringGame(){
+ const a=document.getElementById('gameArea');
+ const colors=['#ef4444','#f97316','#facc15','#22c55e','#3b82f6','#a855f7','#ec4899','#92400e','#ffffff'];
+ let col=colors[0];
+ const W='fill="#fff"', S=(s)=>`<svg viewBox="0 0 300 300" class="w-full max-w-sm mx-auto">${s}</svg>`, F='class="fillable"';
+ const animals={
+  lion:{n:'🦁 أسد',s:S(`<circle ${F} cx="150" cy="150" r="120" ${W}/><circle ${F} cx="150" cy="150" r="80" ${W}/><ellipse ${F} cx="150" cy="185" rx="30" ry="22" ${W}/><circle ${F} cx="120" cy="135" r="12" ${W}/><circle ${F} cx="180" cy="135" r="12" ${W}/><circle cx="120" cy="135" r="5" fill="#000"/><circle cx="180" cy="135" r="5" fill="#000"/><ellipse ${F} cx="150" cy="175" rx="12" ry="8" ${W}/><circle ${F} cx="85" cy="95" r="18" ${W}/><circle ${F} cx="215" cy="95" r="18" ${W}/>`)},
+  turtle:{n:'🐢 سلحفاة',s:S(`<ellipse ${F} cx="150" cy="160" rx="110" ry="80" ${W}/><path ${F} d="M150 100 L185 125 L175 165 L125 165 L115 125 Z" ${W}/><path ${F} d="M115 125 L75 120 L70 160 L125 165Z" ${W}/><path ${F} d="M185 125 L225 120 L230 160 L175 165Z" ${W}/><circle ${F} cx="255" cy="140" r="32" ${W}/><circle cx="265" cy="132" r="5" fill="#000"/><ellipse ${F} cx="80" cy="235" rx="25" ry="15" ${W}/><ellipse ${F} cx="220" cy="235" rx="25" ry="15" ${W}/>`)},
+  fish:{n:'🐟 سمكة',s:S(`<ellipse ${F} cx="140" cy="150" rx="100" ry="60" ${W}/><path ${F} d="M235 150 L285 100 L285 200 Z" ${W}/><path ${F} d="M120 95 L150 50 L170 95 Z" ${W}/><path ${F} d="M120 205 L150 250 L170 205 Z" ${W}/><circle ${F} cx="80" cy="140" r="14" ${W}/><circle cx="78" cy="140" r="6" fill="#000"/><circle ${F} cx="160" cy="150" r="22" ${W}/><circle ${F} cx="205" cy="150" r="15" ${W}/>`)},
+  butterfly:{n:'🦋 فراشة',s:S(`<ellipse ${F} cx="95" cy="110" rx="60" ry="55" ${W}/><ellipse ${F} cx="205" cy="110" rx="60" ry="55" ${W}/><ellipse ${F} cx="100" cy="200" rx="50" ry="45" ${W}/><ellipse ${F} cx="200" cy="200" rx="50" ry="45" ${W}/><ellipse ${F} cx="150" cy="160" rx="18" ry="80" ${W}/><circle ${F} cx="150" cy="75" r="18" ${W}/><circle ${F} cx="95" cy="110" r="18" ${W}/><circle ${F} cx="205" cy="110" r="18" ${W}/><line x1="140" y1="60" x2="120" y2="30" stroke="#000" stroke-width="3"/><line x1="160" y1="60" x2="180" y2="30" stroke="#000" stroke-width="3"/>`)},
+  house:{n:'🏠 بيت',s:S(`<path ${F} d="M40 140 L150 40 L260 140 Z" ${W}/><rect ${F} x="60" y="140" width="180" height="130" ${W}/><rect ${F} x="125" y="190" width="50" height="80" ${W}/><rect ${F} x="75" y="160" width="40" height="40" ${W}/><rect ${F} x="185" y="160" width="40" height="40" ${W}/><rect ${F} x="200" y="60" width="25" height="50" ${W}/><circle ${F} cx="50" cy="60" r="25" ${W}/>`)},
+  flower:{n:'🌸 زهرة',s:S(`<ellipse ${F} cx="150" cy="80" rx="28" ry="45" ${W}/><ellipse ${F} cx="150" cy="180" rx="28" ry="45" ${W}/><ellipse ${F} cx="100" cy="130" rx="45" ry="28" ${W}/><ellipse ${F} cx="200" cy="130" rx="45" ry="28" ${W}/><ellipse ${F} cx="115" cy="95" rx="28" ry="28" ${W}/><ellipse ${F} cx="185" cy="95" rx="28" ry="28" ${W}/><ellipse ${F} cx="115" cy="165" rx="28" ry="28" ${W}/><ellipse ${F} cx="185" cy="165" rx="28" ry="28" ${W}/><circle ${F} cx="150" cy="130" r="30" ${W}/><rect ${F} x="143" y="210" width="14" height="80" ${W}/><ellipse ${F} cx="115" cy="245" rx="30" ry="14" ${W}/><ellipse ${F} cx="185" cy="265" rx="30" ry="14" ${W}/>`)},
+  car:{n:'🚗 سيارة',s:S(`<rect ${F} x="30" y="150" width="240" height="70" rx="15" ${W}/><path ${F} d="M80 150 L110 95 L190 95 L220 150 Z" ${W}/><rect ${F} x="118" y="105" width="30" height="40" ${W}/><rect ${F} x="155" y="105" width="30" height="40" ${W}/><circle ${F} cx="85" cy="225" r="28" ${W}/><circle ${F} cx="215" cy="225" r="28" ${W}/><circle ${F} cx="85" cy="225" r="12" ${W}/><circle ${F} cx="215" cy="225" r="12" ${W}/><circle ${F} cx="45" cy="185" r="10" ${W}/><circle ${F} cx="255" cy="185" r="10" ${W}/>`)},
+  rocket:{n:'🚀 صاروخ',s:S(`<path ${F} d="M150 20 Q200 90 200 180 L100 180 Q100 90 150 20 Z" ${W}/><circle ${F} cx="150" cy="110" r="25" ${W}/><path ${F} d="M100 140 L55 200 L100 190 Z" ${W}/><path ${F} d="M200 140 L245 200 L200 190 Z" ${W}/><rect ${F} x="120" y="180" width="60" height="30" ${W}/><path ${F} d="M125 210 L150 275 L175 210 Z" ${W}/><circle ${F} cx="150" cy="235" r="12" ${W}/>`)},
+  cat:{n:'🐱 قطة',s:S(`<path ${F} d="M70 110 L60 30 L120 75 Z" ${W}/><path ${F} d="M230 110 L240 30 L180 75 Z" ${W}/><circle ${F} cx="150" cy="130" r="85" ${W}/><circle ${F} cx="118" cy="115" r="14" ${W}/><circle ${F} cx="182" cy="115" r="14" ${W}/><ellipse cx="118" cy="115" rx="5" ry="9" fill="#000"/><ellipse cx="182" cy="115" rx="5" ry="9" fill="#000"/><path ${F} d="M140 150 L160 150 L150 162 Z" ${W}/><ellipse ${F} cx="150" cy="240" rx="80" ry="45" ${W}/><line x1="60" y1="150" x2="120" y2="158" stroke="#000" stroke-width="3"/><line x1="240" y1="150" x2="180" y2="158" stroke="#000" stroke-width="3"/>`)},
+  apple:{n:'🍎 تفاحة',s:S(`<path ${F} d="M150 90 C90 50 40 100 55 180 C65 240 110 270 150 255 C190 270 235 240 245 180 C260 100 210 50 150 90 Z" ${W}/><rect ${F} x="144" y="45" width="12" height="50" rx="5" ${W}/><path ${F} d="M156 70 Q200 40 215 75 Q180 95 156 70 Z" ${W}/><ellipse ${F} cx="105" cy="140" rx="18" ry="30" ${W}/>`)},
+  tree:{n:'🌳 شجرة',s:S(`<rect ${F} x="130" y="190" width="40" height="90" ${W}/><circle ${F} cx="150" cy="110" r="70" ${W}/><circle ${F} cx="95" cy="150" r="45" ${W}/><circle ${F} cx="205" cy="150" r="45" ${W}/><circle ${F} cx="120" cy="100" r="12" ${W}/><circle ${F} cx="180" cy="130" r="12" ${W}/><circle ${F} cx="150" cy="160" r="12" ${W}/><ellipse ${F} cx="150" cy="280" rx="110" ry="14" ${W}/>`)},
+  rainbow:{n:'🌈 قوس قزح',s:S(`<path ${F} d="M20 240 A130 130 0 0 1 280 240 L240 240 A90 90 0 0 0 60 240 Z" ${W}/><path ${F} d="M60 240 A90 90 0 0 1 240 240 L205 240 A55 55 0 0 0 95 240 Z" ${W}/><path ${F} d="M95 240 A55 55 0 0 1 205 240 L170 240 A20 20 0 0 0 130 240 Z" ${W}/><circle ${F} cx="45" cy="250" r="25" ${W}/><circle ${F} cx="255" cy="250" r="25" ${W}/><circle ${F} cx="245" cy="60" r="28" ${W}/>`)},
+ };
+ a.innerHTML=`<div class="flex flex-wrap justify-center gap-2 mb-3">${Object.entries(animals).map(([k,v])=>`<button data-a="${k}" class="anb kid-btn bg-purple-500 text-white font-black px-3 py-1.5 rounded-xl border-2 border-purple-600 text-sm sm:text-base">${v.n}</button>`).join('')}</div>
+ <div id="palette" class="flex flex-wrap justify-center gap-3 mb-4"></div>
+ <div id="canvasWrap" class="bg-white rounded-2xl border-4 border-purple-200 p-2"></div>
+ <p class="text-center text-sm font-bold text-slate-500 mt-3">كل جزء تلوّنه يديك نجمة ⭐</p>`;
+ const P=a.querySelector('#palette');
+ colors.forEach((c,i)=>{const s=document.createElement('div');s.className='col-swatch'+(i===0?' sel':'');s.style.background=c;s.onclick=()=>{col=c;pop();P.querySelectorAll('.col-swatch').forEach(x=>x.classList.remove('sel'));s.classList.add('sel');};P.appendChild(s);});
+ function load(k){ const w=a.querySelector('#canvasWrap'); w.innerHTML=animals[k].s; a.querySelectorAll('.anb').forEach(b=>b.classList.toggle('ring-4',b.dataset.a===k)); w.querySelectorAll('.fillable').forEach(el=>el.onclick=()=>{ if(el.getAttribute('fill')==='#fff'||el.getAttribute('fill')==='#ffffff'){addStars(1);} el.setAttribute('fill',col); tone(600+Math.random()*300,0.12); }); }
+ a.querySelectorAll('.anb').forEach(b=>b.onclick=()=>{pop();load(b.dataset.a);});
+ load('lion');
+}
+</script>
+</body>
+</html>
