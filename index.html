@@ -80,6 +80,8 @@ svg .fillable{cursor:pointer;stroke:#0f172a;stroke-width:3;stroke-linejoin:round
   <p class="text-sm sm:text-lg font-medium opacity-95 max-w-xl mx-auto">اضغط على أي لعبة لتبدأ المغامرة فوراً، واجمع النجوم!</p>
 </div>
 
+<div id="helloBar" class="hidden text-center font-black text-lg text-slate-700 bg-white/80 rounded-2xl border-2 border-sky-200 py-2 mb-6"></div>
+
 <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12" id="gamesGrid"></main>
 
 <section class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-4 border-amber-400 shadow-xl text-center mb-8">
@@ -98,6 +100,24 @@ svg .fillable{cursor:pointer;stroke:#0f172a;stroke-width:3;stroke-linejoin:round
 </div>
 
 <footer class="text-center py-6 text-slate-500 font-bold text-xs sm:text-sm bg-white/50 backdrop-blur border-t border-slate-200"><p>مصمم بكل حب ❤️ لأبطالنا الصغار المبدعين</p></footer>
+
+<!-- Register Modal -->
+<div id="regModal" style="position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:60;display:none;align-items:center;justify-content:center;padding:12px">
+  <form id="regForm" class="bg-white rounded-3xl border-4 border-amber-400 shadow-2xl w-full max-w-md p-6">
+    <div class="text-center text-5xl mb-2">🦁</div>
+    <h3 class="text-2xl font-black text-amber-600 text-center mb-1">أهلاً يا بطل! سجّل اسمك الأول</h3>
+    <p class="text-center text-sm font-bold text-slate-500 mb-4">مرة واحدة بس، وبعدها تلعب على طول</p>
+    <label class="block font-black text-slate-700 mb-1">اسم الطفل</label>
+    <input id="regName" required maxlength="40" class="w-full border-4 border-sky-200 focus:border-sky-400 outline-none rounded-2xl px-4 py-3 text-lg font-bold mb-3" placeholder="مثلاً: أسماء">
+    <label class="block font-black text-slate-700 mb-1">السن</label>
+    <div id="regAges" class="flex flex-wrap gap-2 mb-3"></div>
+    <label class="block font-black text-slate-700 mb-1">رقم موبايل ولي الأمر</label>
+    <input id="regPhone" required inputmode="tel" pattern="[0-9+ ]{10,15}" maxlength="15" dir="ltr" class="w-full border-4 border-sky-200 focus:border-sky-400 outline-none rounded-2xl px-4 py-3 text-lg font-bold mb-2 text-left" placeholder="01xxxxxxxxx">
+    <p class="text-xs font-bold text-slate-400 mb-4">البيانات دي بتتحفظ عشان نتابع تقدّم الطفل بس، ومش بتتشارك مع حد.</p>
+    <p id="regErr" class="text-rose-600 font-bold text-sm mb-2 hidden"></p>
+    <button id="regBtn" type="submit" class="kid-btn w-full bg-emerald-500 text-white font-black text-xl py-3 rounded-2xl border-2 border-emerald-600">يلا نلعب 🚀</button>
+  </form>
+</div>
 
 <!-- Game Modal -->
 <div id="gameModal">
@@ -152,7 +172,25 @@ document.getElementById('gamesGrid').innerHTML=GAMES.map(g=>`
  <button onclick="openGame('${g.id}')" class="kid-btn w-full bg-${g.color}-500 hover:bg-${g.color}-600 text-white font-black text-lg py-3 rounded-2xl border-2 border-${g.color}-600">العب الآن 🚀</button>
 </div>`).join('');
 
-function openGame(id){ currentGame=id; const g=GAMES.find(x=>x.id===id); document.getElementById('gameTitle').textContent=g.icon+' '+g.title; document.getElementById('gameModal').classList.add('open'); tone(700,0.15); restartGame(); }
+/* ===== registration ===== */
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxjV2g6JC9xv0Kvyf-s_lbEAcm5ngjMmxTCLI0tsZzLDewRVFUlT5Tzidu5Jkp1HwJ7zg/exec';
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let child=store.get('khzChild'), pendingGame=null, regAge='';
+function deviceId(){ let d=store.get('khzDevice'); if(!d){d=Math.random().toString(36).slice(2,10);store.set('khzDevice',d);} return d; }
+function showHello(){ const h=document.getElementById('helloBar'); if(!h)return; if(child){h.innerHTML='أهلاً يا <b>'+child.name.replace(/[<>&]/g,'')+'</b> 👋 <button onclick="changeChild()" class="underline text-sky-600 text-xs mr-2">مش أنا؟</button>';h.classList.remove('hidden');}else h.classList.add('hidden'); }
+function changeChild(){ child=null; store.set('khzChild',null); showHello(); openReg(null); }
+function openReg(id){ pendingGame=id; const ag=document.getElementById('regAges'); ag.innerHTML=[3,4,5,6,7,8,9].map(n=>`<button type="button" data-a="${n}" class="age kid-btn bg-sky-100 text-sky-700 font-black w-12 h-12 rounded-xl border-2 border-sky-300">${arNum(n)}</button>`).join(''); regAge=''; ag.querySelectorAll('.age').forEach(b=>b.onclick=()=>{regAge=b.dataset.a;pop();ag.querySelectorAll('.age').forEach(x=>x.classList.remove('bg-sky-500','text-white'));b.classList.add('bg-sky-500','text-white');}); document.getElementById('regErr').classList.add('hidden'); document.getElementById('regModal').style.display='flex'; setTimeout(()=>document.getElementById('regName').focus(),50); }
+document.getElementById('regForm').addEventListener('submit',async e=>{ e.preventDefault();
+ const name=document.getElementById('regName').value.trim(), phone=document.getElementById('regPhone').value.replace(/\s/g,''), err=document.getElementById('regErr');
+ if(!name||!regAge||!/^\+?\d{10,14}$/.test(phone)){ err.textContent=!regAge?'اختار السن 👆':'اكتب الاسم ورقم موبايل صحيح'; err.classList.remove('hidden'); bad(); return; }
+ const btn=document.getElementById('regBtn'); btn.disabled=true; btn.textContent='لحظة...';
+ try{ await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({name,age:regAge,phone,device:deviceId()})}); }catch(_){}
+ child={name,age:regAge}; store.set('khzChild',child); btn.disabled=false; btn.textContent='يلا نلعب 🚀';
+ document.getElementById('regModal').style.display='none'; cheer(); burst(); showHello(); if(pendingGame) openGame(pendingGame);
+});
+
+function openGame(id){ if(!child){ openReg(id); return; } currentGame=id; const g=GAMES.find(x=>x.id===id); document.getElementById('gameTitle').textContent=g.icon+' '+g.title; document.getElementById('gameModal').classList.add('open'); tone(700,0.15); restartGame(); }
+showHello();
 function restartGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameArea').innerHTML=''; ({memory:memoryGame,letters:letterGame,shadow:shadowGame,maze:mazeGame,numbers:numberGame,coloring:coloringGame})[currentGame](); }
 function closeGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameModal').classList.remove('open'); document.getElementById('gameArea').innerHTML=''; }
 
