@@ -110,13 +110,20 @@ svg .fillable{cursor:pointer;stroke:#0f172a;stroke-width:3;stroke-linejoin:round
     <div class="text-center text-5xl mb-2">🦁</div>
     <h3 data-t="regTitle" class="text-2xl font-black text-amber-600 text-center mb-1"></h3>
     <p data-t="regSub" class="text-center text-sm font-bold text-slate-500 mb-4"></p>
+    <div id="regStep1">
     <label data-t="regName" class="block font-black text-slate-700 mb-1"></label>
-    <input id="regName" required maxlength="40" class="w-full border-4 border-sky-200 focus:border-sky-400 outline-none rounded-2xl px-4 py-3 text-lg font-bold mb-3">
+    <input id="regName" maxlength="40" class="w-full border-4 border-sky-200 focus:border-sky-400 outline-none rounded-2xl px-4 py-3 text-lg font-bold mb-3">
     <label data-t="regAge" class="block font-black text-slate-700 mb-1"></label>
     <div id="regAges" class="flex flex-wrap gap-2 mb-3"></div>
-    <label data-t="regPhone" class="block font-black text-slate-700 mb-1"></label>
-    <input id="regPhone" required inputmode="tel" pattern="[0-9+ ]{10,15}" maxlength="15" dir="ltr" class="w-full border-4 border-sky-200 focus:border-sky-400 outline-none rounded-2xl px-4 py-3 text-lg font-bold mb-2 text-left" placeholder="01xxxxxxxxx">
+    <label data-t="regEmail" class="block font-black text-slate-700 mb-1"></label>
+    <input id="regEmail" type="email" inputmode="email" autocomplete="email" maxlength="80" dir="ltr" class="w-full border-4 border-sky-200 focus:border-sky-400 outline-none rounded-2xl px-4 py-3 text-lg font-bold mb-2 text-left" placeholder="parent@gmail.com">
     <p data-t="regPrivacy" class="text-xs font-bold text-slate-400 mb-4"></p>
+    </div>
+    <div id="regStep2" class="hidden">
+    <p id="regSentTo" class="text-center font-bold text-slate-600 mb-3"></p>
+    <input id="regCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr" class="w-full border-4 border-amber-300 focus:border-amber-500 outline-none rounded-2xl px-4 py-3 text-3xl font-black tracking-[.5em] text-center mb-2" placeholder="••••••">
+    <div class="flex justify-between text-sm font-bold mb-4"><button type="button" id="regResend" class="underline text-sky-600 disabled:text-slate-400 disabled:no-underline"></button><button type="button" id="regBack" data-t="regBack" class="underline text-slate-500"></button></div>
+    </div>
     <p id="regErr" class="text-rose-600 font-bold text-sm mb-2 hidden"></p>
     <button id="regBtn" type="submit" class="kid-btn w-full bg-emerald-500 text-white font-black text-xl py-3 rounded-2xl border-2 border-emerald-600"></button>
   </form>
@@ -145,8 +152,10 @@ const I18N={
   prizes:'🎁 ركن الجوائز والملصقات السحرية 🎉', prizesSub:'المس أو انقر على أي ملصق لتحصل على نجوم واحتفال رائع!',
   footer:'مصمم بكل حب ❤️ لأبطالنا الصغار المبدعين', ages:'٥ - ٧ سنوات', play:'العب الآن 🚀', restart:'🔄 من جديد', exit:'✖ خروج',
   regTitle:'أهلاً يا بطل! سجّل اسمك الأول', regSub:'مرة واحدة بس، وبعدها تلعب على طول', regName:'اسم الطفل', regNamePh:'مثلاً: أسماء',
-  regAge:'السن', regPhone:'رقم موبايل ولي الأمر', regPrivacy:'البيانات دي بتتحفظ عشان نتابع تقدّم الطفل بس، ومش بتتشارك مع حد.',
-  regBtn:'يلا نلعب 🚀', regWait:'لحظة...', errAge:'اختار السن 👆', errData:'اكتب الاسم ورقم موبايل صحيح',
+  regAge:'السن', regEmail:'إيميل ولي الأمر (Gmail)', regPrivacy:'هيوصل كود تأكيد على الإيميل. البيانات بتتحفظ عشان نتابع تقدّم الطفل بس، ومش بتتشارك مع حد.',
+  regBtn:'يلا نلعب 🚀', regWait:'لحظة...', errAge:'اختار السن 👆', errData:'اكتب الاسم وإيميل صحيح',
+  regSend:'📧 ابعت كود التأكيد', regVerify:'✔ تأكيد ويلا نلعب', regSentTo:'بعتنا كود من ٦ أرقام على', regResend:'إعادة إرسال الكود', regResendIn:'إعادة الإرسال بعد', regBack:'تغيير الإيميل',
+  errCode:'الكود غلط، راجعه وجرّب تاني', errExpired:'الكود انتهى، اطلب كود جديد', errWait:'استنى دقيقة قبل ما تطلب كود تاني', errLimit:'طلبت أكواد كتير، جرّب بعد شوية', errNet:'في مشكلة في الاتصال، جرّب تاني', errCodeLen:'اكتب الكود ٦ أرقام',
   hello:'أهلاً يا', notMe:'مش أنا؟', winMsg:'أحسنت يا بطل! 🏆', youGot:'حصلت على',
   g_memory:'لعبة تطابق الذاكرة', d_memory:'اقلب البطاقات الملونة وابحث عن الصور المتطابقة واختبر قوة ذاكرتك!',
   g_letters:'صائد الحروف', d_letters:'حرك السلة وامسك الحرف المطلوب قبل ما يقع على الأرض!',
@@ -182,8 +191,10 @@ const I18N={
   prizes:'🎁 Magic Prizes & Stickers Corner 🎉', prizesSub:'Tap any sticker to get stars and a big celebration!',
   footer:'Made with love ❤️ for our little heroes', ages:'Ages 5 - 7', play:'Play now 🚀', restart:'🔄 Restart', exit:'✖ Exit',
   regTitle:'Hi, hero! Tell us your name first', regSub:'Just once, then play anytime', regName:"Child's name", regNamePh:'e.g. Asmaa',
-  regAge:'Age', regPhone:"Parent's mobile number", regPrivacy:"This info is saved only to follow the child's progress and is never shared.",
-  regBtn:"Let's play 🚀", regWait:'One moment...', errAge:'Pick the age 👆', errData:'Enter the name and a valid mobile number',
+  regAge:'Age', regEmail:"Parent's email (Gmail)", regPrivacy:"A verification code will be sent to this email. The info is saved only to follow the child's progress and is never shared.",
+  regBtn:"Let's play 🚀", regWait:'One moment...', errAge:'Pick the age 👆', errData:'Enter the name and a valid email',
+  regSend:'📧 Send verification code', regVerify:"✔ Verify & play", regSentTo:'We sent a 6-digit code to', regResend:'Resend code', regResendIn:'Resend in', regBack:'Change email',
+  errCode:'Wrong code, check it and try again', errExpired:'The code expired, request a new one', errWait:'Wait a minute before requesting another code', errLimit:'Too many codes requested, try again later', errNet:'Connection problem, please try again', errCodeLen:'Enter the 6-digit code',
   hello:'Hi', notMe:'Not me?', winMsg:'Great job, hero! 🏆', youGot:'You got',
   g_memory:'Memory Match', d_memory:'Flip the colorful cards, find the matching pictures and test your memory!',
   g_letters:'Letter Catcher', d_letters:'Move the basket and catch the right letter before it hits the ground!',
@@ -224,7 +235,7 @@ function applyLang(){
  document.title=lang==='ar'?'عالم ألعاب الأبطال':'Heroes Games World';
  document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
  document.getElementById('regName').placeholder=t('regNamePh');
- document.getElementById('regBtn').textContent=t('regBtn');
+ regLabels();
  document.getElementById('langToggle').textContent=t('langBtn');
  renderCards(); showHello();
  if(document.getElementById('regModal').style.display==='flex') renderAges();
@@ -290,14 +301,39 @@ function deviceId(){ let d=store.get('khzDevice'); if(!d){d=Math.random().toStri
 function showHello(){ const h=document.getElementById('helloBar'); if(!h)return; if(child){h.innerHTML=t('hello')+' <b>'+child.name.replace(/[<>&]/g,'')+'</b> 👋 <button onclick="changeChild()" class="underline text-sky-600 text-xs mx-2">'+t('notMe')+'</button>';h.classList.remove('hidden');}else h.classList.add('hidden'); }
 function changeChild(){ child=null; store.set('khzChild',null); showHello(); openReg(null); }
 function renderAges(){ const ag=document.getElementById('regAges'); ag.innerHTML=[3,4,5,6,7,8,9].map(n=>`<button type="button" data-a="${n}" class="age kid-btn ${regAge==n?'bg-sky-500 text-white':'bg-sky-100 text-sky-700'} font-black w-12 h-12 rounded-xl border-2 border-sky-300">${num(n)}</button>`).join(''); ag.querySelectorAll('.age').forEach(b=>b.onclick=()=>{regAge=b.dataset.a;pop();ag.querySelectorAll('.age').forEach(x=>{x.classList.remove('bg-sky-500','text-white');x.classList.add('bg-sky-100','text-sky-700');});b.classList.remove('bg-sky-100','text-sky-700');b.classList.add('bg-sky-500','text-white');}); }
-function openReg(id){ pendingGame=id; regAge=''; renderAges(); document.getElementById('regErr').classList.add('hidden'); document.getElementById('regModal').style.display='flex'; setTimeout(()=>document.getElementById('regName').focus(),50); }
-document.getElementById('regForm').addEventListener('submit',async e=>{ e.preventDefault();
- const name=document.getElementById('regName').value.trim(), phone=document.getElementById('regPhone').value.replace(/\s/g,''), err=document.getElementById('regErr');
- if(!name||!regAge||!/^\+?\d{10,14}$/.test(phone)){ err.textContent=!regAge?t('errAge'):t('errData'); err.classList.remove('hidden'); bad(); return; }
- const btn=document.getElementById('regBtn'); btn.disabled=true; btn.textContent=t('regWait');
- try{ await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({name,age:regAge,phone,device:deviceId()})}); }catch(_){}
- child={name,age:regAge}; store.set('khzChild',child); btn.disabled=false; btn.textContent=t('regBtn');
- document.getElementById('regModal').style.display='none'; cheer(); burst(); showHello(); if(pendingGame) openGame(pendingGame);
+let regStep=1, regEmailVal='', resendTimer=null, resendLeft=0;
+const $=id=>document.getElementById(id);
+function regShowErr(k){ const e=$('regErr'); if(!k){e.classList.add('hidden');return;} e.textContent=t(k); e.classList.remove('hidden'); bad(); }
+function regSetStep(s){ regStep=s; $('regStep1').classList.toggle('hidden',s!==1); $('regStep2').classList.toggle('hidden',s!==2); regLabels(); }
+function regLabels(){ $('regBtn').textContent=t(regStep===1?'regSend':'regVerify'); $('regSentTo').innerHTML=t('regSentTo')+'<br><b dir="ltr">'+regEmailVal.replace(/[<>&"]/g,'')+'</b>'; const r=$('regResend'); r.disabled=resendLeft>0; r.textContent=resendLeft>0?t('regResendIn')+' '+num(resendLeft):t('regResend'); }
+function startResendTimer(){ clearInterval(resendTimer); resendLeft=60; regLabels(); resendTimer=setInterval(()=>{ resendLeft--; if(resendLeft<=0){resendLeft=0;clearInterval(resendTimer);} regLabels(); },1000); }
+async function api(body){ const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)}); return r.json(); }
+const ERRMAP={code:'errCode',expired:'errExpired',wait:'errWait',limit:'errLimit',email:'errData',name:'errData'};
+async function sendCode(){
+ const btn=$('regBtn'); btn.disabled=true; btn.textContent=t('regWait'); regShowErr(null);
+ try{ const res=await api({action:'send',email:regEmailVal}); if(res.ok){ regSetStep(2); startResendTimer(); setTimeout(()=>$('regCode').focus(),50); good(); } else regShowErr(ERRMAP[res.err]||'errNet'); }
+ catch(_){ regShowErr('errNet'); }
+ btn.disabled=false; regLabels();
+}
+function openReg(id){ pendingGame=id; regAge=''; renderAges(); regShowErr(null); $('regCode').value=''; regSetStep(1); $('regModal').style.display='flex'; setTimeout(()=>$('regName').focus(),50); }
+$('regBack').onclick=()=>{ pop(); regShowErr(null); regSetStep(1); };
+$('regResend').onclick=()=>{ if(resendLeft>0)return; pop(); sendCode(); };
+$('regCode').addEventListener('input',e=>{ e.target.value=e.target.value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'').slice(0,6); });
+$('regForm').addEventListener('submit',async e=>{ e.preventDefault();
+ if(regStep===1){
+  const name=$('regName').value.trim(), email=$('regEmail').value.trim().toLowerCase();
+  if(!regAge){ regShowErr('errAge'); return; }
+  if(!name||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ regShowErr('errData'); return; }
+  regEmailVal=email; return sendCode();
+ }
+ const code=$('regCode').value.trim(); if(!/^\d{6}$/.test(code)){ regShowErr('errCodeLen'); return; }
+ const name=$('regName').value.trim(), btn=$('regBtn'); btn.disabled=true; btn.textContent=t('regWait'); regShowErr(null);
+ try{ const res=await api({action:'verify',email:regEmailVal,code,name,age:regAge,device:deviceId()});
+  if(!res.ok){ regShowErr(ERRMAP[res.err]||'errNet'); if(res.err==='expired'){ $('regCode').value=''; } btn.disabled=false; regLabels(); return; }
+ }catch(_){ regShowErr('errNet'); btn.disabled=false; regLabels(); return; }
+ btn.disabled=false; clearInterval(resendTimer); resendLeft=0;
+ child={name,age:regAge,email:regEmailVal}; store.set('khzChild',child);
+ $('regModal').style.display='none'; cheer(); burst(); showHello(); if(pendingGame) openGame(pendingGame);
 });
 
 function setGameTitle(){ const g=GAMES.find(x=>x.id===currentGame); document.getElementById('gameTitle').textContent=g.icon+' '+t('g_'+g.id); }
