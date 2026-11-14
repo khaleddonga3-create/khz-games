@@ -296,7 +296,9 @@ function renderCards(){
 
 /* ===== registration ===== */
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxjV2g6JC9xv0Kvyf-s_lbEAcm5ngjMmxTCLI0tsZzLDewRVFUlT5Tzidu5Jkp1HwJ7zg/exec';
+const REG_V=2; // غيّر الرقم ده عشان تخرّج كل المسجلين
 let child=store.get('khzChild'), pendingGame=null, regAge='';
+if(child && child.v!==REG_V){ child=null; store.set('khzChild',null); }
 function deviceId(){ let d=store.get('khzDevice'); if(!d){d=Math.random().toString(36).slice(2,10);store.set('khzDevice',d);} return d; }
 function showHello(){ const h=document.getElementById('helloBar'); if(!h)return; if(child){h.innerHTML=t('hello')+' <b>'+child.name.replace(/[<>&]/g,'')+'</b> 👋 <button onclick="changeChild()" class="underline text-sky-600 text-xs mx-2">'+t('notMe')+'</button>';h.classList.remove('hidden');}else h.classList.add('hidden'); }
 function changeChild(){ child=null; store.set('khzChild',null); showHello(); openReg(null); }
@@ -333,7 +335,7 @@ $('regForm').addEventListener('submit',async e=>{ e.preventDefault();
   if(!res.ok){ regShowErr(ERRMAP[res.err]||'errNet'); if(res.err==='expired'){ $('regCode').value=''; } btn.disabled=false; regLabels(); return; }
  }catch(_){ regShowErr('errNet'); btn.disabled=false; regLabels(); return; }
  btn.disabled=false; clearInterval(resendTimer); resendLeft=0;
- child={name,age:regAge,email:regEmailVal}; store.set('khzChild',child);
+ child={name,age:regAge,email:regEmailVal,v:REG_V}; store.set('khzChild',child);
  $('regModal').style.display='none'; cheer(); burst(); showHello(); if(pendingGame) openGame(pendingGame);
 });
 
