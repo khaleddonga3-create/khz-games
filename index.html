@@ -83,6 +83,8 @@ svg .fillable{cursor:pointer;stroke:#0f172a;stroke-width:3;stroke-linejoin:round
 
 <div id="helloBar" class="hidden text-center font-black text-lg text-slate-700 bg-white/80 rounded-2xl border-2 border-sky-200 py-2 mb-6"></div>
 
+<div id="ageTabs" class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6"></div>
+
 <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12" id="gamesGrid"></main>
 
 <section class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-4 border-amber-400 shadow-xl text-center mb-8">
@@ -161,6 +163,17 @@ const I18N={
   colHint:'كل جزء تلوّنه يديك نجمة ⭐',
   c_lion:'🦁 أسد', c_turtle:'🐢 سلحفاة', c_fish:'🐟 سمكة', c_butterfly:'🦋 فراشة', c_house:'🏠 بيت', c_flower:'🌸 زهرة',
   c_car:'🚗 سيارة', c_rocket:'🚀 صاروخ', c_cat:'🐱 قطة', c_apple:'🍎 تفاحة', c_tree:'🌳 شجرة', c_rainbow:'🌈 قوس قزح',
+  agesBig:'٨ - ١٢ سنة', tabAll:'🎮 الكل', tabSmall:'🧸 ٥ - ٧ سنوات', tabBig:'🚀 ٨ - ١٢ سنة',
+  g_math:'تحدي الحساب السريع', d_math:'جمع وطرح وضرب! جاوب على ١٠ أسئلة قبل ما الوقت يخلص.',
+  g_words:'رتّب الكلمة', d_words:'الحروف متلخبطة! رتّبها عشان تكوّن الكلمة الصح.',
+  g_simon:'ذاكرة الألوان', d_simon:'شوف الألوان بتنوّر بأي ترتيب وكرّرها، والسلسلة بتطول كل مرة!',
+  g_puzzle:'لغز الأرقام المنزلق', d_puzzle:'حرّك المربعات لحد ما الأرقام تترتب من ١ للآخر.',
+  g_ttt:'إكس أو ضد الكمبيوتر', d_ttt:'العب إكس أو ضد الكمبيوتر وحاول تكسبه!',
+  question:'سؤال', timeUp:'⏰ الوقت خلص!', correct:'صح', mathResult:'جاوبت صح على',
+  wordHint:'رتّب الحروف عشان تكوّن الكلمة', wordRound:'كلمة', clear:'↩ مسح', check:'✔ تأكيد', wrong:'غلط، حاول تاني!',
+  simonWatch:'👀 ركّز وشوف...', simonGo:'🎯 دورك! كرّر الترتيب', simonStart:'▶ ابدأ', simonLose:'اللون غلط! وصلت للمستوى', simonLevel:'المستوى',
+  pzMoves:'الحركات:', pzSize3:'سهل ٣×٣', pzSize4:'صعب ٤×٤', pzWin:'رتّبت اللغز! 🧩🏆',
+  tttYou:'إنت ❌', tttCpu:'الكمبيوتر ⭕', tttDraw:'تعادل', tttYourTurn:'دورك! 👆', tttWin:'كسبت الكمبيوتر! 🎉', tttLose:'الكمبيوتر كسب، حاول تاني!', tttTie:'تعادل! 🤝', tttAgain:'🔄 جولة جديدة', tttEasy:'سهل', tttHard:'صعب',
   langBtn:'EN'
  },
  en:{
@@ -187,6 +200,17 @@ const I18N={
   colHint:'Every part you color gives you a star ⭐',
   c_lion:'🦁 Lion', c_turtle:'🐢 Turtle', c_fish:'🐟 Fish', c_butterfly:'🦋 Butterfly', c_house:'🏠 House', c_flower:'🌸 Flower',
   c_car:'🚗 Car', c_rocket:'🚀 Rocket', c_cat:'🐱 Cat', c_apple:'🍎 Apple', c_tree:'🌳 Tree', c_rainbow:'🌈 Rainbow',
+  agesBig:'Ages 8 - 12', tabAll:'🎮 All', tabSmall:'🧸 Ages 5 - 7', tabBig:'🚀 Ages 8 - 12',
+  g_math:'Quick Math Challenge', d_math:'Add, subtract and multiply! Answer 10 questions before time runs out.',
+  g_words:'Word Scramble', d_words:'The letters are mixed up! Put them in order to make the right word.',
+  g_simon:'Color Memory', d_simon:'Watch the colors light up and repeat the order. It gets longer every time!',
+  g_puzzle:'Sliding Number Puzzle', d_puzzle:'Slide the tiles until the numbers are in order.',
+  g_ttt:'Tic-Tac-Toe vs Computer', d_ttt:'Play tic-tac-toe against the computer and try to beat it!',
+  question:'Question', timeUp:'⏰ Time is up!', correct:'Correct', mathResult:'You got right',
+  wordHint:'Arrange the letters to make the word', wordRound:'Word', clear:'↩ Clear', check:'✔ Check', wrong:'Not quite, try again!',
+  simonWatch:'👀 Watch carefully...', simonGo:'🎯 Your turn! Repeat the order', simonStart:'▶ Start', simonLose:'Wrong color! You reached level', simonLevel:'Level',
+  pzMoves:'Moves:', pzSize3:'Easy 3×3', pzSize4:'Hard 4×4', pzWin:'Puzzle solved! 🧩🏆',
+  tttYou:'You ❌', tttCpu:'Computer ⭕', tttDraw:'Draws', tttYourTurn:'Your turn! 👆', tttWin:'You beat the computer! 🎉', tttLose:'The computer won, try again!', tttTie:"It's a draw! 🤝", tttAgain:'🔄 New round', tttEasy:'Easy', tttHard:'Hard',
   langBtn:'ع'
  }
 };
@@ -231,14 +255,26 @@ const GAMES=[
  {id:'maze',icon:'🌀',color:'emerald'},
  {id:'numbers',icon:'🏎️',color:'indigo'},
  {id:'coloring',icon:'🎨',color:'purple'},
+ {id:'math',icon:'➗',color:'orange',big:1},
+ {id:'words',icon:'📝',color:'teal',big:1},
+ {id:'simon',icon:'🚦',color:'pink',big:1},
+ {id:'puzzle',icon:'🔢',color:'cyan',big:1},
+ {id:'ttt',icon:'❌',color:'lime',big:1},
 ];
+let ageFilter=store.get('khzAge')||'all';
+function renderTabs(){
+ document.getElementById('ageTabs').innerHTML=[['all','tabAll'],['small','tabSmall'],['big','tabBig']].map(([k,l])=>`<button data-f="${k}" class="kid-btn font-black px-4 py-2 rounded-2xl border-2 text-sm sm:text-base ${ageFilter===k?'bg-amber-500 text-white border-amber-600':'bg-white text-amber-700 border-amber-300'}">${t(l)}</button>`).join('');
+ document.querySelectorAll('#ageTabs button').forEach(b=>b.onclick=()=>{ageFilter=b.dataset.f;store.set('khzAge',ageFilter);pop();renderCards();});
+}
 function renderCards(){
- document.getElementById('gamesGrid').innerHTML=GAMES.map(g=>`
+ renderTabs();
+ const list=GAMES.filter(g=>ageFilter==='all'||(ageFilter==='big')===!!g.big);
+ document.getElementById('gamesGrid').innerHTML=list.map(g=>`
 <div class="bg-white rounded-3xl p-6 border-4 border-${g.color}-300 shadow-xl flex flex-col justify-between hover:scale-[1.02] transition-transform">
  <div>
   <div class="flex justify-between items-start mb-4">
    <div class="w-16 h-16 rounded-2xl bg-${g.color}-100 border-2 border-${g.color}-300 flex items-center justify-center text-4xl shadow-inner">${g.icon}</div>
-   <span class="bg-${g.color}-100 text-${g.color}-700 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full border border-${g.color}-300">${t('ages')}</span>
+   <span class="bg-${g.color}-100 text-${g.color}-700 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full border border-${g.color}-300">${t(g.big?'agesBig':'ages')}</span>
   </div>
   <h3 class="text-xl sm:text-2xl font-black text-slate-800 mb-2">${t('g_'+g.id)}</h3>
   <p class="text-slate-600 text-sm leading-relaxed mb-6 font-medium">${t('d_'+g.id)}</p>
@@ -266,7 +302,7 @@ document.getElementById('regForm').addEventListener('submit',async e=>{ e.preven
 
 function setGameTitle(){ const g=GAMES.find(x=>x.id===currentGame); document.getElementById('gameTitle').textContent=g.icon+' '+t('g_'+g.id); }
 function openGame(id){ if(!child){ openReg(id); return; } currentGame=id; setGameTitle(); document.getElementById('gameModal').classList.add('open'); tone(700,0.15); restartGame(); }
-function restartGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameArea').innerHTML=''; ({memory:memoryGame,letters:letterGame,shadow:shadowGame,maze:mazeGame,numbers:numberGame,coloring:coloringGame})[currentGame](); }
+function restartGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameArea').innerHTML=''; ({memory:memoryGame,letters:letterGame,shadow:shadowGame,maze:mazeGame,numbers:numberGame,coloring:coloringGame,math:mathGame,words:wordGame,simon:simonGame,puzzle:puzzleGame,ttt:tttGame})[currentGame](); }
 function closeGame(){ if(gameCleanup){gameCleanup();gameCleanup=null;} document.getElementById('gameModal').classList.remove('open'); document.getElementById('gameArea').innerHTML=''; }
 
 /* ===== 1. Memory ===== */
@@ -424,6 +460,143 @@ function coloringGame(){
  function load(k){ const w=a.querySelector('#canvasWrap'); w.innerHTML=animals[k]; a.querySelectorAll('.anb').forEach(b=>b.classList.toggle('ring-4',b.dataset.a===k)); w.querySelectorAll('.fillable').forEach(el=>el.onclick=()=>{ if(el.getAttribute('fill')==='#fff'||el.getAttribute('fill')==='#ffffff'){addStars(1);} el.setAttribute('fill',col); tone(600+Math.random()*300,0.12); }); }
  a.querySelectorAll('.anb').forEach(b=>b.onclick=()=>{pop();load(b.dataset.a);});
  load('lion');
+}
+
+/* ===== 7. Quick math (8-12) ===== */
+function mathGame(){
+ const a=document.getElementById('gameArea');
+ const TOTAL=10, SECS=12; let q=0, right=0, timer=null, left=SECS, ans=0;
+ function make(){
+  const lvl=Math.min(2,Math.floor(q/4)); const ops=lvl===0?['+','-']:lvl===1?['+','-','×']:['×','×','+','-'];
+  const op=ops[Math.floor(Math.random()*ops.length)]; let x,y;
+  if(op==='×'){x=2+Math.floor(Math.random()*(lvl===2?11:8));y=2+Math.floor(Math.random()*9);ans=x*y;}
+  else if(op==='+'){x=10+Math.floor(Math.random()*(lvl?90:40));y=5+Math.floor(Math.random()*(lvl?60:30));ans=x+y;}
+  else{x=20+Math.floor(Math.random()*(lvl?80:40));y=5+Math.floor(Math.random()*(x-5));ans=x-y;}
+  const opts=new Set([ans]); while(opts.size<4){const d=(Math.floor(Math.random()*9)+1)*(Math.random()<.5?-1:1); if(ans+d>=0)opts.add(ans+d);}
+  return {text:`${num(x)} ${op} ${num(y)} = ؟`.replace('؟',lang==='ar'?'؟':'?'),opts:shuffle([...opts])};
+ }
+ function render(){
+  if(q>=TOTAL){ clearInterval(timer); const s=right; a.innerHTML=`<p class="text-center text-xl font-black text-slate-700 mt-4">${t('mathResult')} ${num(s)} / ${num(TOTAL)}</p>`; if(s>=7) win(s); else { const d=document.createElement('p'); d.className='text-center text-lg font-bold text-rose-600 mt-2'; d.textContent=t('lcLose'); a.appendChild(d); addStars(s); } return; }
+  const m=make(); left=SECS;
+  a.innerHTML=`<div class="flex justify-between items-center mb-3 font-black text-slate-700"><span>${t('question')} ${num(q+1)}/${num(TOTAL)}</span><span>✅ ${num(right)}</span></div>
+  <div class="h-3 bg-slate-200 rounded-full overflow-hidden mb-5"><div id="mtBar" class="h-full bg-orange-500 transition-all duration-1000" style="width:100%"></div></div>
+  <div dir="ltr" class="text-center text-5xl sm:text-6xl font-black text-orange-600 bg-orange-50 rounded-2xl py-6 mb-5 border-4 border-orange-200">${m.text}</div>
+  <div class="grid grid-cols-2 gap-3 max-w-sm mx-auto">${m.opts.map(o=>`<button data-v="${o}" class="mtb kid-btn bg-orange-500 text-white text-3xl font-black py-4 rounded-2xl border-2 border-orange-600">${num(o)}</button>`).join('')}</div>`;
+  a.querySelectorAll('.mtb').forEach(b=>b.onclick=()=>{ clearInterval(timer); a.querySelectorAll('.mtb').forEach(x=>x.disabled=true);
+   if(+b.dataset.v===ans){right++;good();b.classList.replace('bg-orange-500','bg-green-500');} else {bad();b.classList.replace('bg-orange-500','bg-rose-500');a.querySelector(`.mtb[data-v="${ans}"]`).classList.replace('bg-orange-500','bg-green-500');}
+   q++; setTimeout(render,700); });
+  clearInterval(timer); timer=setInterval(()=>{ left--; const bar=a.querySelector('#mtBar'); if(bar)bar.style.width=(left/SECS*100)+'%';
+   if(left<=0){ clearInterval(timer); bad(); a.querySelectorAll('.mtb').forEach(x=>x.disabled=true); const c=a.querySelector(`.mtb[data-v="${ans}"]`); if(c)c.classList.replace('bg-orange-500','bg-green-500'); q++; setTimeout(render,900);} },1000);
+ }
+ gameCleanup=()=>clearInterval(timer);
+ render();
+}
+
+/* ===== 8. Word scramble (8-12) ===== */
+function wordGame(){
+ const a=document.getElementById('gameArea');
+ const W=lang==='ar'
+  ?[['قطة','🐱'],['أسد','🦁'],['بيت','🏠'],['شمس','☀️'],['قمر','🌙'],['كتاب','📖'],['مدرسة','🏫'],['تفاحة','🍎'],['سيارة','🚗'],['زرافة','🦒'],['طائرة','✈️'],['فراشة','🦋'],['شجرة','🌳'],['سمكة','🐟'],['كرسي','🪑'],['قلم','✏️']]
+  :[['CAT','🐱'],['LION','🦁'],['HOUSE','🏠'],['SUN','☀️'],['MOON','🌙'],['BOOK','📖'],['SCHOOL','🏫'],['APPLE','🍎'],['CAR','🚗'],['GIRAFFE','🦒'],['PLANE','✈️'],['BUTTERFLY','🦋'],['TREE','🌳'],['FISH','🐟'],['CHAIR','🪑'],['PENCIL','✏️']];
+ const ROUNDS=6; const words=shuffle([...W]).sort((x,y)=>[...x[0]].length-[...y[0]].length).slice(0,ROUNDS*2).filter((_,i)=>i%2===0);
+ let r=0, picked=[];
+ function render(){
+  if(r>=ROUNDS){ win(12); return; }
+  const [w,e]=words[r]; const letters=[...w]; let mix; do{mix=shuffle(letters.map((c,i)=>({c,i})));}while(letters.length>1&&mix.map(x=>x.c).join('')===w);
+  picked=[];
+  a.innerHTML=`<div class="flex justify-between items-center mb-2 font-black text-slate-700"><span>${t('wordRound')} ${num(r+1)}/${num(ROUNDS)}</span></div>
+  <p class="text-center font-bold text-slate-600 mb-2">${t('wordHint')}</p>
+  <div class="text-center text-7xl mb-3">${e}</div>
+  <div id="wdAns" class="min-h-[72px] flex items-center justify-center text-4xl sm:text-5xl font-black text-teal-700 bg-teal-50 border-4 border-dashed border-teal-300 rounded-2xl mb-4 px-3"></div>
+  <div id="wdTiles" class="flex flex-wrap justify-center gap-2 mb-4">${mix.map((x,k)=>`<button data-k="${k}" class="wdt kid-btn bg-teal-500 text-white text-3xl font-black w-14 h-14 rounded-xl border-2 border-teal-600">${x.c}</button>`).join('')}</div>
+  <div class="flex justify-center gap-3"><button id="wdClr" class="kid-btn bg-slate-400 text-white font-black px-5 py-2 rounded-xl border-2 border-slate-500">${t('clear')}</button></div>
+  <p id="wdMsg" class="text-center font-black text-rose-600 mt-3 min-h-[28px]"></p>`;
+  const ans=a.querySelector('#wdAns');
+  const show=()=>{ ans.textContent=picked.map(k=>mix[k].c).join(''); };
+  a.querySelectorAll('.wdt').forEach(b=>b.onclick=()=>{ if(b.disabled)return; pop(); b.disabled=true; b.style.opacity=.3; picked.push(+b.dataset.k); show(); a.querySelector('#wdMsg').textContent='';
+   if(picked.length===letters.length){ if(ans.textContent===w){ good(); addStars(2); ans.classList.add('bg-green-100','border-green-400'); r++; setTimeout(render,900);} else { bad(); a.querySelector('#wdMsg').textContent=t('wrong'); ans.classList.add('shake'); setTimeout(()=>{ans.classList.remove('shake');reset();},700);} } });
+  const reset=()=>{ picked=[]; show(); a.querySelectorAll('.wdt').forEach(b=>{b.disabled=false;b.style.opacity=1;}); };
+  a.querySelector('#wdClr').onclick=()=>{pop();reset();};
+ }
+ render();
+}
+
+/* ===== 9. Color memory / Simon (8-12) ===== */
+function simonGame(){
+ const a=document.getElementById('gameArea');
+ const PADS=[{c:'#ef4444',on:'#fca5a5',f:330},{c:'#22c55e',on:'#86efac',f:392},{c:'#3b82f6',on:'#93c5fd',f:494},{c:'#eab308',on:'#fde047',f:587}];
+ let seq=[], pos=0, busy=true, alive=true, timers=[];
+ const GOAL=10;
+ a.innerHTML=`<div class="flex justify-between items-center mb-3 font-black text-slate-700"><span id="smLvl">${t('simonLevel')} ${num(0)}</span><span>🏆 ${num(GOAL)}</span></div>
+ <p id="smMsg" class="text-center font-black text-lg text-slate-600 mb-4 min-h-[28px]"></p>
+ <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-5">${PADS.map((p,i)=>`<button data-i="${i}" class="smp rounded-3xl border-4 border-white shadow-lg" style="aspect-ratio:1;background:${p.c};transition:all .15s"></button>`).join('')}</div>
+ <div class="text-center"><button id="smStart" class="kid-btn bg-pink-500 text-white font-black text-xl px-8 py-3 rounded-2xl border-2 border-pink-600">${t('simonStart')}</button></div>`;
+ const pads=[...a.querySelectorAll('.smp')], msg=a.querySelector('#smMsg');
+ const later=(fn,ms)=>{const id=setTimeout(()=>{if(alive)fn();},ms);timers.push(id);};
+ function flash(i,ms=420){ const p=pads[i]; p.style.background=PADS[i].on; p.style.transform='scale(1.06)'; tone(PADS[i].f,ms/1000,'triangle',0.25); later(()=>{p.style.background=PADS[i].c;p.style.transform='';},ms); }
+ function playSeq(){ busy=true; msg.textContent=t('simonWatch'); a.querySelector('#smLvl').textContent=t('simonLevel')+' '+num(seq.length);
+  const gap=Math.max(350,700-seq.length*30); seq.forEach((i,k)=>later(()=>flash(i,gap*0.7),600+k*gap));
+  later(()=>{busy=false;pos=0;msg.textContent=t('simonGo');},600+seq.length*gap); }
+ function next(){ seq.push(Math.floor(Math.random()*4)); playSeq(); }
+ pads.forEach(p=>p.onclick=()=>{ if(busy)return; const i=+p.dataset.i; flash(i,250);
+  if(i!==seq[pos]){ busy=true; bad(); msg.textContent=t('simonLose')+' '+num(seq.length); addStars(seq.length-1>0?seq.length-1:0); a.querySelector('#smStart').classList.remove('hidden'); return; }
+  pos++; if(pos===seq.length){ busy=true; if(seq.length>=GOAL){ win(15); return; } good(); later(next,700); } });
+ a.querySelector('#smStart').onclick=e=>{ e.target.classList.add('hidden'); seq=[]; next(); };
+ gameCleanup=()=>{alive=false;timers.forEach(clearTimeout);};
+}
+
+/* ===== 10. Sliding puzzle (8-12) ===== */
+function puzzleGame(n){
+ const a=document.getElementById('gameArea'); n=n||3;
+ let tiles=[...Array(n*n).keys()].map(i=>(i+1)%(n*n)), moves=0, done=false;
+ const nb=i=>{const r=Math.floor(i/n),c=i%n,o=[];if(r>0)o.push(i-n);if(r<n-1)o.push(i+n);if(c>0)o.push(i-1);if(c<n-1)o.push(i+1);return o;};
+ let blank=tiles.indexOf(0), prev=-1;
+ for(let k=0;k<(n===3?80:200);k++){ const o=nb(blank).filter(x=>x!==prev); const m=o[Math.floor(Math.random()*o.length)]; [tiles[blank],tiles[m]]=[tiles[m],tiles[blank]]; prev=blank; blank=m; }
+ a.innerHTML=`<div class="flex flex-wrap justify-between items-center gap-2 mb-3"><span class="font-black text-slate-700">${t('pzMoves')} <span id="pzM">${num(0)}</span></span>
+ <div class="flex gap-2"><button data-n="3" class="pzs kid-btn ${n===3?'bg-cyan-600':'bg-cyan-400'} text-white font-black px-3 py-1.5 rounded-xl border-2 border-cyan-700 text-sm">${t('pzSize3')}</button><button data-n="4" class="pzs kid-btn ${n===4?'bg-cyan-600':'bg-cyan-400'} text-white font-black px-3 py-1.5 rounded-xl border-2 border-cyan-700 text-sm">${t('pzSize4')}</button></div></div>
+ <div id="pzG" dir="ltr" class="grid gap-2 mx-auto bg-cyan-100 p-2 rounded-2xl border-4 border-cyan-300" style="grid-template-columns:repeat(${n},1fr);max-width:${n===3?300:340}px"></div>`;
+ a.querySelectorAll('.pzs').forEach(b=>b.onclick=()=>{pop();puzzleGame(+b.dataset.n);});
+ const g=a.querySelector('#pzG');
+ function draw(){ g.innerHTML=tiles.map((v,i)=>v?`<button data-i="${i}" class="pzt kid-btn bg-cyan-500 text-white font-black rounded-xl border-2 border-cyan-600 ${n===3?'text-4xl':'text-3xl'}" style="aspect-ratio:1">${num(v)}</button>`:`<div style="aspect-ratio:1"></div>`).join('');
+  g.querySelectorAll('.pzt').forEach(b=>b.onclick=()=>{ if(done)return; const i=+b.dataset.i, z=tiles.indexOf(0); if(!nb(z).includes(i)){bad();return;}
+   [tiles[z],tiles[i]]=[tiles[i],tiles[z]]; moves++; tone(520,0.06); a.querySelector('#pzM').textContent=num(moves); draw();
+   if(tiles.every((v,k)=>v===(k+1)%(n*n))){ done=true; win(n===3?12:25,t('pzWin')); } }); }
+ draw();
+}
+
+/* ===== 11. Tic-tac-toe vs computer (8-12) ===== */
+function tttGame(){
+ const a=document.getElementById('gameArea');
+ let score={w:0,l:0,d:0}, hard=false;
+ const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+ const winner=b=>{for(const[x,y,z]of LINES)if(b[x]&&b[x]===b[y]&&b[x]===b[z])return{p:b[x],l:[x,y,z]};return b.every(Boolean)?{p:'D'}:null;};
+ function minimax(b,me){ const w=winner(b); if(w)return w.p==='O'?10:w.p==='X'?-10:0; const sc=[]; b.forEach((v,i)=>{if(!v){b[i]=me;sc.push(minimax(b,me==='O'?'X':'O'));b[i]='';}}); return me==='O'?Math.max(...sc):Math.min(...sc); }
+ function cpuMove(b){ const free=b.map((v,i)=>v?null:i).filter(v=>v!==null);
+  if(!hard && Math.random()<0.45) return free[Math.floor(Math.random()*free.length)];
+  let best=-99,mv=free[0]; for(const i of free){ b[i]='O'; const s=minimax(b,'X'); b[i]=''; if(s>best){best=s;mv=i;} } return mv; }
+ function round(){
+  let b=Array(9).fill(''), over=false;
+  a.innerHTML=`<div class="flex flex-wrap justify-center gap-2 mb-3 font-black text-sm sm:text-base">
+   <span class="bg-lime-100 border-2 border-lime-300 rounded-xl px-3 py-1">${t('tttYou')}: ${num(score.w)}</span>
+   <span class="bg-slate-100 border-2 border-slate-300 rounded-xl px-3 py-1">${t('tttDraw')}: ${num(score.d)}</span>
+   <span class="bg-rose-100 border-2 border-rose-300 rounded-xl px-3 py-1">${t('tttCpu')}: ${num(score.l)}</span></div>
+  <div class="flex justify-center gap-2 mb-3"><button data-h="0" class="tth kid-btn ${!hard?'bg-lime-600':'bg-lime-400'} text-white font-black px-4 py-1.5 rounded-xl border-2 border-lime-700 text-sm">${t('tttEasy')}</button><button data-h="1" class="tth kid-btn ${hard?'bg-lime-600':'bg-lime-400'} text-white font-black px-4 py-1.5 rounded-xl border-2 border-lime-700 text-sm">${t('tttHard')}</button></div>
+  <p id="ttMsg" class="text-center font-black text-lg text-slate-700 mb-3">${t('tttYourTurn')}</p>
+  <div id="ttG" dir="ltr" class="grid grid-cols-3 gap-2 max-w-xs mx-auto"></div>
+  <div class="text-center mt-4"><button id="ttNew" class="kid-btn hidden bg-lime-500 text-white font-black px-6 py-2 rounded-2xl border-2 border-lime-600">${t('tttAgain')}</button></div>`;
+  a.querySelectorAll('.tth').forEach(x=>x.onclick=()=>{hard=x.dataset.h==='1';pop();round();});
+  const g=a.querySelector('#ttG'), msg=a.querySelector('#ttMsg');
+  const draw=(hl=[])=>{ g.innerHTML=b.map((v,i)=>`<button data-i="${i}" class="ttc rounded-2xl border-4 ${hl.includes(i)?'border-amber-400 bg-amber-100':'border-lime-300 bg-white'} text-5xl font-black" style="aspect-ratio:1">${v==='X'?'❌':v==='O'?'⭕':''}</button>`).join('');
+   g.querySelectorAll('.ttc').forEach(c=>c.onclick=()=>play(+c.dataset.i)); };
+  function end(w){ over=true; draw(w.l||[]); a.querySelector('#ttNew').classList.remove('hidden');
+   if(w.p==='X'){score.w++; win(hard?15:8,t('tttWin'));} else if(w.p==='O'){score.l++; bad(); msg.textContent=t('tttLose');} else {score.d++; good(); addStars(2); msg.textContent=t('tttTie');} }
+  function play(i){ if(over||b[i])return; b[i]='X'; pop(); let w=winner(b); if(w)return end(w);
+   draw(); msg.textContent='🤔...'; over=true;
+   setTimeout(()=>{ if(!document.getElementById('ttG'))return; over=false; b[cpuMove(b)]='O'; tone(300,0.1); const w2=winner(b); if(w2)return end(w2); draw(); msg.textContent=t('tttYourTurn'); },450); }
+  a.querySelector('#ttNew').onclick=()=>{pop();round();};
+  draw();
+ }
+ round();
 }
 
 applyLang();
